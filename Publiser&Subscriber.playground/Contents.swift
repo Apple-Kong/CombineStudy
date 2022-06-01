@@ -8,6 +8,7 @@ public func example(of description: String, action: () -> Void) {
         action()
 }
 
+//MARK: - Publisher
 
 example(of: "Publisher") {
     // 1
@@ -30,6 +31,8 @@ example(of: "Publisher") {
     // 6
     center.removeObserver(observer) // 옵저버 등록 해제
 }
+
+//MARK: - Subscriber
 
 
 example(of: "Just") {
@@ -57,6 +60,8 @@ example(of: "assign") {
     let publisher = ["Hello", "World"].publisher
     _ = publisher.assign(to: \.value, on: object)
 }
+
+
 
 
 
