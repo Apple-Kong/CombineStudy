@@ -100,10 +100,12 @@ example(of: "PaththroughSubject") {
 example(of: "CurrentValueSubject") {
     let subject = CurrentValueSubject<Int, Never>(0)
     var subscriptions = [AnyCancellable]()
-    subject.sink { completion in
+    subject
+        .print()
+        .sink { completion in
         print("Received completion", completion)
     } receiveValue: { value in
-        print("Received Value :", value)
+        print(value)
     }
     .store(in: &subscriptions)
     
@@ -113,5 +115,24 @@ example(of: "CurrentValueSubject") {
     subject.value = 3
     print("print current value \(subject.value)")
     //즉 값을 할당하는 코드로 -> 자동으로 선언형 프로그래밍으로 전환가능.
+    
+    
+    //새롭게 subscriber 를 연결
+    subject
+//        .print()
+        .sink(receiveValue: { print("Second Subscription : \($0)")})
+        .store(in: &subscriptions)
+    
+    //연결과 동시에 현재 값만 한번 발행함.
+    
+    
+    
+//    subject.value = .finished 🚨 -> 이코드는 에러 발생!!
+    
+    
+    //🌟 해당 scope 를 빠져나가면서 subscriptions 에 저장되어 있는 구독들이 자동 취소된다!!
+    
+    //아래 코드 처럼 completion 을 보내주면 cancel 안되고 completion 됨 -> cancel 따로 또 해줄 필요는 없다.
+    subject.send(completion: .finished) // 이 코드로 구독을 종료 시켜야함.
 }
 
