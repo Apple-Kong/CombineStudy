@@ -2,7 +2,6 @@ import Foundation
 import Combine
 import PlaygroundSupport
 
-var greeting = "Hello, playground"
 
 public func example(of description: String, action: () -> Void) {
       print("\n——— Example of:", description, "———")
@@ -144,32 +143,4 @@ example(of: "Custom Subscriber String") {
     
     let subscriber = IntSubscriber()
     publisher.subscribe(subscriber)
-}
-
-//MARK: - Future (Publisher)
-// 비동기적으로 하나의 결과물을 발행하고 completion 발행하는 데 사용 가능.
-PlaygroundPage.current.needsIndefiniteExecution = true
-
-example(of: "Future") {
-    func futureIncrement(integer: Int, afterDelay delay: TimeInterval) -> Future<Int,Never> {
-        Future<Int, Never> { promise in
-            
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                promise(.success(integer + 1))
-            }
-        }
-    }
-    
-    let future = futureIncrement(integer: 1, afterDelay: 3)
-    
-    var subscriptions = Set<AnyCancellable>()
-    
-    future.sink {
-        print($0)
-    } receiveValue: {
-        print($0)
-    }
-    .store(in: &subscriptions)
-
 }
