@@ -66,22 +66,26 @@ example(of: "assign") {
 
 
 example(of: "Custom Subscriber") {
-    let publisher = (1...6).publisher
+    let publisher = (1...6).publisher //Publisher 는 6개의 값을 발행함
+    
     final class IntSubscriber: Subscriber {
         typealias Input = Int
         typealias Failure = Never
         
         func receive(subscription: Subscription) {
-            subscription.request(.max(3))
+            subscription.request(.max(3)) //최대 3개의 값을 원한다.
         }
         
         func receive(_ input: Int) -> Subscribers.Demand {
-            return .none
+            print("Received Value", input)
+            return .none //받고자 하는 값의 수를 조절하지 않겠다 라는 뜻 즉 demand 를 수정하지 않겠다
         }
         
         func receive(completion: Subscribers.Completion<Never>) {
-            print("Received completion", completion)
+            print("Received Completion", completion)
         }
-        
     }
+    
+    let subscriber = IntSubscriber()
+    publisher.subscribe(subscriber)
 }
