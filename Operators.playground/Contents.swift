@@ -26,3 +26,16 @@ example(of: "collect") {
 }
 
 
+//MARK: - map
+example(of: "map") {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .spellOut
+    var subscriptions = [AnyCancellable]()
+    
+    [123, 4, 56].publisher
+        .map {
+            formatter.string(for: NSNumber(integerLiteral: $0)) ?? ""
+        }
+        .sink(receiveValue: { print($0) })
+        .store(in: &subscriptions)
+}
