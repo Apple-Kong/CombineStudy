@@ -39,3 +39,5 @@ example(of: "map") {
         .sink(receiveValue: { print($0) })
         .store(in: &subscriptions)
 }
+
+
