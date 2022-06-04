@@ -8,3 +8,16 @@ public func example(of description: String, action: () -> Void) {
         action()
 }
 
+//MARK: - filter
+example(of: "filter") {
+    let numbers = (1...10).publisher
+    var subscriptions = [AnyCancellable]()
+    
+    numbers
+        .filter { $0.isMultiple(of: 3) }
+        .sink { number in
+            print("\(number) 는 3의 배수입니다.")
+        }
+        .store(in: &subscriptions)
+}
+
