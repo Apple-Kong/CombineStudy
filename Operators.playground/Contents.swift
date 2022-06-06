@@ -40,4 +40,48 @@ example(of: "map") {
         .store(in: &subscriptions)
 }
 
+public struct Coordinate {
+  public let x: Int
+  public let y: Int
+  
+  public init(x: Int, y: Int) {
+    self.x = x
+    self.y = y
+  }
+}
+
+public func quadrantOf(x: Int, y: Int) -> String {
+  var quadrant = ""
+  
+  switch (x, y) {
+  case (1..., 1...):
+    quadrant = "1"
+  case (..<0, 1...):
+    quadrant = "2"
+  case (..<0, ..<0):
+    quadrant = "3"
+  case (1..., ..<0):
+    quadrant = "4"
+  default:
+    quadrant = "boundary"
+  }
+  
+  return quadrant
+}
+
+example(of: "mapping ket paths") {
+    let publisher = PassthroughSubject<Coordinate, Never>()
+    var subscriptions = [AnyCancellable]()
+    
+    publisher
+        .map(\.x, \.y)
+        .sink { x, y in
+            print("좌표 (\(x), \(y)) 는 \(quadrantOf(x: x, y: y)) 사분면 위에 있습니다.")
+        }
+        .store(in: &subscriptions)
+    
+    publisher.send(Coordinate(x: 10, y: -8))
+    publisher.send(Coordinate(x: 0, y: 5))
+}
+
 

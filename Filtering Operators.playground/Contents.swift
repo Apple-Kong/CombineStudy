@@ -34,3 +34,8 @@ example(of: "remove duplicates") {
         .sink(receiveValue: { print($0)})
         .store(in: &subscriptions)
 }
+
+//MARK: - compactMap
+example(of: "compact mapping") {
+    
+}
