@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 import Combine
 import PlaygroundSupport
 
@@ -62,4 +62,69 @@ example(of: "append") {
     publisher.send(1)
     publisher.send(completion: .finished) // 마찬가지로 종료 시점에 대한 맥락이 주어쟈야 뒤에 붙일 수 있다.
         
+}
+
+//MARK: - switchToLatest -> 구독중인 publisher 갈아끼기 ( 구독취소 + 구독 )
+example(of: "switchToLatest") {
+    let publisher1 = PassthroughSubject<Int,Never>()
+    let publisher2 = PassthroughSubject<Int,Never>()
+    let publisher3 = PassthroughSubject<Int,Never>()
+    
+    let publishers = PassthroughSubject<PassthroughSubject<Int, Never> ,Never>()
+    
+    _ = publishers
+        .switchToLatest()
+        .sink(receiveCompletion: { _ in print("completed")}, receiveValue: {print($0)})
+        
+    publishers.send(publisher1)
+    publisher1.send(1)
+    publisher1.send(2)
+    
+    publishers.send(publisher2)
+    publisher1.send(3) // 구독 취소돼서 값 발행 안됨
+    publisher2.send(4)
+    publisher2.send(5)
+    
+    publishers.send(publisher3)
+    publisher2.send(6) // 마찬가지로 값이 발행되지 않음.
+    publisher3.send(7)
+    publisher3.send(8)
+    
+    /*
+     🌟 언제 사용이 가능할까?
+     UI 에 뿌려줄 형식은 같으나 사용자의 action 에 따라 불러와야 하는 API 메서드가 다를 경우!!!
+     즉 상단 탭바를 터치해 요청은 달라지나, 같은 형식의 UI 를 뿌려주어야 할떄,
+     Subscriber와 Operator 는 그대로 두고 Publisher 만 갈아낄 수 있다. 매우 간편.
+     */
+}
+
+example(of: "switchToLatest - Network Request") {
+    let url = URL(string: "https://source.unsplash.com/random")!
+    
+    func getImage() -> AnyPublisher<UIImage?, Never> {
+          URLSession.shared
+            .dataTaskPublisher(for: url)
+            .map { data, _ in UIImage(data: data) }
+            .print("image")
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
+    }
+    
+    let taps = PassthroughSubject<Void, Never>()
+    
+    _ = taps
+        .map { _ in getImage() }
+        .switchToLatest()
+        .sink(receiveValue: {_ in })
+    
+    taps.send()
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        taps.send()
+    }
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3.1) {
+        taps.send()
+    }
+
 }
