@@ -48,4 +48,18 @@ example(of: "prepend with anoter publisher infinite") {
     publisher2.send(completion: .finished) // 반드시 complete 되는 맥락에 대한 정보를 제공해주어야. Combine 이 끝을 추론해서 뒤에 발행되는 값을 배치한다.
 }
 
-
+//MARK: - Append
+example(of: "append") {
+    let publisher = PassthroughSubject<Int, Never>()
+    let publisher2 = [6,7].publisher
+    
+    _ = publisher
+        .append(2,3)
+        .append([4,5]) //sequence 도 붙일 수 있다.
+        .append(publisher2) // publisher 도 붙일 수 있다.
+        .sink(receiveValue: {print($0)})
+    
+    publisher.send(1)
+    publisher.send(completion: .finished) // 마찬가지로 종료 시점에 대한 맥락이 주어쟈야 뒤에 붙일 수 있다.
+        
+}
