@@ -11,25 +11,20 @@ public func example(of description: String, action: () -> Void) {
 //MARK: - Publisher
 
 example(of: "Publisher") {
-    // 1
+   
     let myNotification = Notification.Name("MyNotification")
-    // 2
+  
     let publisher = NotificationCenter.default
         .publisher(for: myNotification, object: nil)
     
-    // 3
-    let center = NotificationCenter.default
-    // 4
-    let observer = center.addObserver(
-        forName: myNotification,
-        object: nil,
-        queue: nil) { notification in
-            print("Notification received!")
+    _ = publisher
+        .sink { _ in
+            print("Receieved Noti")
         }
-    // 5
+
+    let center = NotificationCenter.default
+    
     center.post(name: myNotification, object: nil) // noti 발행
-    // 6
-    center.removeObserver(observer) // 옵저버 등록 해제
 }
 
 //MARK: - Subscriber
@@ -61,6 +56,42 @@ example(of: "assign") {
     _ = publisher.assign(to: \.value, on: object)
 }
 
+example(of: "Republish value") {
+    class someObject {
+        @Published var value: Int = 0
+    }
+    
+    let object = someObject()
+    
+    object.$value
+        .sink { value in
+            print("Received: \(value)")
+        }
+    
+    (0..<10).publisher
+        .assign(to: &object.$value)
+}
+
+example(of: "strong reference cycle") {
+    class Myobject {
+        @Published var word: String = ""
+       
+        
+        init() {
+            ["A", "B", "C"].publisher
+                .assign(to: &$word)
+        }
+    }
+    
+    let object = Myobject()
+    
+    object.$word
+        .sink { value in
+            print(value)
+        }
+    
+    object.word = "wow"
+}
 
 
 
